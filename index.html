@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monthly Expense Tracker</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+    />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="app-title-row">
+        <h1>FlowTrack</h1>
+        <div id="userInfo" class="user-info hidden">
+          <span id="welcomeUser" class="user-pill"></span>
+          <button id="logoutBtn" class="link-btn small">Logout</button>
+        </div>
+      </div>
+      <div class="month-picker">
+        <button id="prevMonthBtn" aria-label="Previous month">&#8249;</button>
+        <span id="currentMonthLabel"></span>
+        <button id="nextMonthBtn" aria-label="Next month">&#8250;</button>
+      </div>
+    </header>
+
+    <section id="authScreen" class="auth-screen">
+      <div class="auth-card">
+        <div class="auth-header">
+          <h2 class="auth-title">Welcome to FlowTrack</h2>
+          <p class="auth-subtitle">Sign in to keep your monthly spending on track.</p>
+        </div>
+
+        <div class="auth-tabs">
+          <button id="loginTab" class="auth-tab active">Login</button>
+          <button id="signupTab" class="auth-tab">Sign up</button>
+        </div>
+
+        <form id="loginForm" class="auth-form">
+          <div class="form-group">
+            <label for="loginUsername">Username</label>
+            <input
+              type="text"
+              id="loginUsername"
+              autocomplete="username"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <input
+              type="password"
+              id="loginPassword"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+          <button type="submit" class="primary-btn full-width">Login</button>
+          <button type="button" id="forgotPasswordBtn" class="link-btn centered">
+            Forgot password?
+          </button>
+        </form>
+
+        <form id="signupForm" class="auth-form hidden">
+          <div class="form-group">
+            <label for="signupUsername">Username</label>
+            <input
+              type="text"
+              id="signupUsername"
+              maxlength="20"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="signupPassword">Password</label>
+            <input
+              type="password"
+              id="signupPassword"
+              minlength="4"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="signupPasswordConfirm">Confirm password</label>
+            <input
+              type="password"
+              id="signupPasswordConfirm"
+              minlength="4"
+              required
+            />
+          </div>
+          <button type="submit" class="primary-btn full-width">Create account</button>
+        </form>
+      </div>
+    </section>
+
+    <main id="appScreen" class="hidden">
+      <section class="card summary-card">
+        <div class="card-header">
+          <h2>Overview</h2>
+          <button id="resetMonthBtn" class="link-btn">Reset Month</button>
+        </div>
+        <div class="summary-row">
+          <div>
+            <span class="label">Salary</span>
+            <button id="salaryDisplay" class="value value-button" type="button">0</button>
+          </div>
+          <div>
+            <span class="label">Total Spent</span>
+            <span id="totalSpentDisplay" class="value negative">0</span>
+          </div>
+          <div>
+            <span class="label">Remaining</span>
+            <span id="remainingDisplay" class="value positive">0</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card center-card">
+        <h2>Spending balance</h2>
+        <canvas id="pieChart" width="520" height="400"></canvas>
+      </section>
+
+      <section class="card">
+        <h2>Add Expense</h2>
+        <form id="expenseForm">
+          <div class="form-group">
+            <label for="expenseTitle">Title</label>
+            <input
+              type="text"
+              id="expenseTitle"
+              maxlength="50"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="expenseAmount">Amount</label>
+            <input
+              type="number"
+              id="expenseAmount"
+              min="0"
+              step="0.01"
+              required
+            />
+          </div>
+
+          <button type="submit" class="primary-btn full-width">
+            Add Expense
+          </button>
+        </form>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>Expenses</h2>
+          <button id="clearExpensesBtn" class="link-btn">Clear All</button>
+        </div>
+        <ul id="expenseList" class="expense-list"></ul>
+        <p id="emptyState" class="empty-state">No expenses for this month yet.</p>
+      </section>
+
+      <section class="card">
+        <h2>Last 6 Months</h2>
+        <canvas id="monthlyChart" width="400" height="180"></canvas>
+        <p class="chart-caption">Total spent per month (current user)</p>
+      </section>
+    </main>
+  </div>
+
+  <div id="overlay" class="overlay hidden"></div>
+
+  <div id="salaryModal" class="modal hidden">
+    <div class="modal-card">
+      <h3>Edit monthly salary</h3>
+      <p class="modal-subtitle">Quickly adjust salary for this month.</p>
+      <div class="form-group">
+        <label for="salaryQuickInput">Salary</label>
+        <input
+          type="number"
+          id="salaryQuickInput"
+          min="0"
+          step="0.01"
+        />
+      </div>
+      <div class="modal-actions">
+        <button id="salaryModalCancel" class="secondary-btn">Cancel</button>
+        <button id="salaryModalSave" class="primary-btn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="deleteModal" class="modal hidden">
+    <div class="modal-card">
+      <h3>Delete expense?</h3>
+      <p class="modal-subtitle">
+        This will permanently remove the selected expense from this month.
+      </p>
+      <div class="modal-actions">
+        <button id="deleteCancel" class="secondary-btn">Cancel</button>
+        <button id="deleteConfirm" class="primary-btn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="resetModal" class="modal hidden">
+    <div class="modal-card">
+      <h3>Reset this month?</h3>
+      <p class="modal-subtitle">
+        All expenses for the selected month will be cleared. Salary will stay as it is.
+      </p>
+      <div class="modal-actions">
+        <button id="resetCancel" class="secondary-btn">Cancel</button>
+        <button id="resetConfirm" class="primary-btn">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="forgotModal" class="modal hidden">
+    <div class="modal-card">
+      <h3>Reset password</h3>
+      <p class="modal-subtitle">
+       
+      <form id="forgotForm">
+        <div class="form-group">
+          <label for="forgotUsername">Username</label>
+          <input
+            type="text"
+            id="forgotUsername"
+            placeholder="Your username"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="forgotNewPassword">New password</label>
+          <input
+            type="password"
+            id="forgotNewPassword"
+            minlength="4"
+            placeholder="New password"
+            required
+          />
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="forgotCancel" class="secondary-btn">Cancel</button>
+          <button type="submit" class="primary-btn">Update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+
+  <script src="script.js"></script>
+</body>
+</html>
+
